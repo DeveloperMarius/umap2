@@ -190,7 +190,7 @@ class CynthionPhy(PhyInterface):
             #  empty, and we can skip this.)
             endpoint_triplets = []
 
-            for nr, endpoint in self.connected_device.endpoints.entries():
+            for nr, endpoint in self.connected_device.endpoints.items():
                 self.debug(f"Configuring endpoint: {endpoint}.")
                 triple = (endpoint.address, endpoint.max_packet_size, endpoint.transfer_type,)
                 endpoint_triplets.append(triple)
