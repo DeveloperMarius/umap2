@@ -1,8 +1,42 @@
+# This file is heavily based on the Moondancer class from https://github.com/greatscottgadgets/facedancer/blob/main/facedancer/backends/moondancer.py
+# This class reimplements the MoondancerApp class as CynthionPhy.
+# The MoondancerApp class uses internal Facedancer classes like facedancer.device.USBDevice.
+# The CynthionPhy implementation adds support for the internal umap2 classes like umap2.core.usb_device.USBDevice but still uses some of the Facedancer classes to reduce the amount of copyed code.
+
+# The original code is licensed under the BSD-3-Clause license:
+# Copyright (c) 2019 Katherine J. Temkin <k@ktemkin.com>
+# Copyright (c) 2018 Dominic Spill <dominicgs@gmail.com>
+# Copyright (c) 2018 Travis Goodspeed <travis@radiantmachines.com>
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation and/or
+# other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 from umap2.phy.iphy import PhyInterface
-import platform
 from umap2.core.usb_device import USBDevice, USBDeviceRequest
 
-from typing           import List, Tuple
+from typing import List, Tuple
 from cynthion import Cynthion
 from cynthion.boards.cynthion_moondancer import CynthionMoondancer
 from pygreat.classes.core import CoreAPI
@@ -11,55 +45,17 @@ from facedancer.types import USBDirection, DeviceSpeed
 from facedancer.backends.moondancer import InterruptEvent
 from facedancer.request import USBControlRequest
 
-# Based on: MoondancerApp from .venv/lib/python3.12/site-packages/facedancer/backends/moondancer.py
-# MoondancerApp is used by the facedancer USBDevice .venv/lib/python3.12/site-packages/facedancer/device.py
-
-# CynthionPhy will be used by umap2 USBDevice umap2/core/usb_device.py
-
-
-
-
-
-
-# Havily based on .venv/lib/python3.12/site-packages/facedancer/backends/moondancer.py aka MoondancerApp
 class CynthionPhy(PhyInterface):
-    # Notes: 
-    # Facedaner setAdress will do:
-    # request.acknowledge(blocking=True)
-    # self.set_address(request.value)
-    # 
-    # We just self.ack_status_stage()
-    # maybe it is required to set_address
-    
-    
-    
-    
-    app_name = "Moondancer"
 
     # Number of supported USB endpoints.
-    SUPPORTED_ENDPOINTS = 16
+    SUPPORTED_ENDPOINTS: int = 16
     
-    
-    
-    device_speed             : DeviceSpeed = None
+    device_speed : DeviceSpeed = None
     device : CynthionMoondancer = None
     api: CoreAPI = None
-    # 1 Create physical
-    # for device
-    #   device = self.load_device(device_name, phy)
-    #   device.connect()
-    #       phy.connect(device)
-    #   device.run()
-    #       phy.run()
-    #   device.disconnect()
-    #       phy.disconnect()
-    #   phy.disconnect()
     
     def __init__(self, app):
         super(CynthionPhy, self).__init__(app, 'CynthionPhy')
-        if platform.system() != 'Linux':
-            raise Exception('CynthionPhy is only supported on Linux')
-        
         
         if not self.appropriate_for_environment('cynthion'):
             raise Exception('CynthionPhy is not supported on this platform')
@@ -98,18 +94,18 @@ class CynthionPhy(PhyInterface):
         '''
         super(CynthionPhy, self).connect(usb_device)
         
-        # Quirks are not provided anywhere by UMAP2
+        # Quirks are not provided anywhere by umap2
         quirks = 0
         
         if self.device_speed != None:
-            device_speed=self.device_speed
+            device_speed = self.device_speed
         
         if device_speed not in [DeviceSpeed.FULL, DeviceSpeed.HIGH]:
             self.warning(f"Moondancer only supports USB Full and High Speed. Ignoring requested speed: {device_speed.name}")
 
         self.debug(f"moondancer.connect(max_packet_size_ep0:{self.max_packet_size_ep0}, device_speed:{device_speed}, quirks:{quirks})")
         
-        # Override the max packet size if provided by the USBDevice
+        # Check if the USBDevice has the max_packet_size_ep0 set
         if usb_device.max_packet_size_ep0 is None:
             raise Exception('max_packet_size_ep0 is not set')
         
@@ -178,7 +174,7 @@ class CynthionPhy(PhyInterface):
         req = USBDeviceRequest(buf)
         
         if req.request == 5:# handle_set_address_request
-            # Not sure if the api needs the address, but MoondancerApp does it.
+            # Not sure if the api needs the address, but MoondancerApp does it this way.
             self._set_address(req.value)
         
         elif req.request == 9:#handle_set_configuration_request
@@ -195,14 +191,6 @@ class CynthionPhy(PhyInterface):
                 triple = (endpoint.address, endpoint.max_packet_size, endpoint.transfer_type,)
                 endpoint_triplets.append(triple)
 
-            #for interface in self.configuration.get_interfaces():
-            #    for endpoint in interface.get_endpoints():#
-
-            #        self.debug(f"Configuring endpoint: {endpoint}.")
-
-            #        triple = (endpoint.get_address(), endpoint.max_packet_size, endpoint.transfer_type,)
-            #        endpoint_triplets.append(triple)
-
             if len(endpoint_triplets):
                 self.api.configure_endpoints(*endpoint_triplets)
                 for triplet in endpoint_triplets:
@@ -215,7 +203,6 @@ class CynthionPhy(PhyInterface):
 
             self.info("Target host configuration complete.")
         
-
 
     # Support for USBControlRequest class from MoondancerApp to answer requests from the host
     def control_send(self, endpoint_number: int, in_request: USBControlRequest, data: bytes, *, blocking: bool = False):
@@ -232,8 +219,8 @@ class CynthionPhy(PhyInterface):
         """
         self._send_on_control_endpoint(endpoint_number, in_request, data, blocking=blocking)
 
-    # Additional methods from MoondancerApp
 
+    # Additional slightly modified methods from MoondancerApp
     def _set_address(self, address: int, defer: bool = False):
         """ Updates the device's knowledge of its own address.
 
@@ -578,20 +565,9 @@ class CynthionPhy(PhyInterface):
         for endpoint_number in nakked_endpoints:
             if endpoint_number != 0:
                 self.debug(f"Received IN NAK on ep{endpoint_number}")
-                # !!!not supported by umap2
-                #self.connected_device.handle_nak(endpoint_number)        
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+                # TODO not supported by umap2!!!
+                # self.connected_device.handle_nak(endpoint_number)        
+
     # Static methods
 
     @classmethod
