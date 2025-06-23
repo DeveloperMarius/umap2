@@ -10,6 +10,7 @@ from serial import Serial, PARITY_NONE
 
 from umap2.phy.facedancer.max342x_phy import Max342xPhy
 from umap2.phy.gadgetfs.gadgetfs_phy import GadgetFsPhy
+from umap2.phy.cynthion.cynthion_phy import CynthionPhy
 from umap2.utils.ulogger import set_default_handler_level
 
 
@@ -78,6 +79,10 @@ class Umap2App(object):
         elif phy_type == 'gadgetfs':
             self.logger.debug('Physical interface is GadgetFs')
             phy = GadgetFsPhy(self)
+            return phy
+        elif phy_type == 'cynthion':
+            self.logger.debug('Physical interface is Cynthion')
+            phy = CynthionPhy(self)
             return phy
         raise Exception('Phy type not supported: %s' % phy_type)
 
