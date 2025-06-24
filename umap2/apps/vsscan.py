@@ -20,6 +20,7 @@ Options:
 Physical layer:
     fd:<serial_port>        use facedancer connected to given serial port
     gadgetfs                use gadgetfs (requires mounting of gadgetfs beforehand)
+    cynthion                use cynthion
 
 DB_FILE:
     a python file with a db member which is a list of DBEntry() objects.

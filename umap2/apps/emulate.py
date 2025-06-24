@@ -16,6 +16,7 @@ Options:
 Physical layer:
     fd:<serial_port>        use facedancer connected to given serial port
     gadgetfs                use gadgetfs (requires mounting of gadgetfs beforehand)
+    cynthion                use cynthion
 
 Examples:
     emulate keyboard:
