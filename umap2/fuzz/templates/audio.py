@@ -6,8 +6,8 @@ from kitty.model import UInt8, LE16, RandomBytes, BitField, Static
 from kitty.model import Template, Repeat, List, Container, ForEach, OneOf
 from kitty.model import ElementCount, SizeInBytes
 from kitty.model import ENC_INT_LE
-from . hid import GenerateHidReport
-from . generic import Descriptor, SizedPt, DynamicInt, SubDescriptor
+from .hid import GenerateHidReport
+from .generic import Descriptor, SizedPt, DynamicInt, SubDescriptor
 
 
 class _AC_DescriptorSubTypes:  # AC Interface Descriptor Subtype

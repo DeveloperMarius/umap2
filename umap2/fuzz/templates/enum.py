@@ -9,8 +9,20 @@ from kitty.model import Template, Container, List
 # dynamic fields
 from kitty.model import ElementCount, SizeInBytes
 # encoders
-from kitty.model import StrEncodeEncoder, ENC_INT_LE
-from . generic import Descriptor, SubDescriptor
+from kitty.model import ENC_INT_LE, StrEncoder
+from .generic import Descriptor, SubDescriptor
+
+
+# Custom encoder for UTF-16-LE that works with bytes
+class Utf16LeEncoder(StrEncoder):
+    '''
+    Encode bytes to UTF-16-LE
+    '''
+    def encode(self, value):
+        # value is already bytes, decode to string first, then encode to UTF-16-LE
+        if isinstance(value, bytes):
+            value = value.decode('utf-8', errors='ignore')
+        return super().encode(value.encode('utf_16_le'))
 
 
 # Device descriptor
@@ -125,7 +137,7 @@ string_descriptor = Descriptor(
     name='string_descriptor',
     descriptor_type=DescriptorType.string,
     fields=[
-        String(name='bString', value='hello_kitty', encoder=StrEncodeEncoder('utf_16_le'), max_size=254 / 2)
+        String(name='bString', value='hello_kitty', encoder=Utf16LeEncoder(), max_size=254 / 2)
     ])
 
 

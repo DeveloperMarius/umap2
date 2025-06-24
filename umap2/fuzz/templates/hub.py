@@ -4,7 +4,7 @@ Hub templates
 from umap2.core.usb import DescriptorType
 from kitty.model import UInt8, LE16, RandomBytes
 from kitty.model import Size
-from generic import Descriptor
+from .generic import Descriptor
 
 
 # hub_descriptor
