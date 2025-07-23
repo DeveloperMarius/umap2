@@ -76,8 +76,8 @@ Hardware
   is the recommended hardware for Umap2.
   Umap2 was developed based on it, and you'll get the most support with it.
 - `Cynthion <https://github.com/greatscottgadgets/cynthion>`_ is supported.
-  To get started, read the `Using Cynthion with Facedancer <https://cynthion.readthedocs.io/en/latest/getting_started_facedancer.html>`_ 
-  guide to install all the required dependencies.
+  To get started, read the `Getting started with Cynthion <https://cynthion.readthedocs.io/en/latest/getting_started.html>`_ and `Using Cynthion with Facedancer <https://cynthion.readthedocs.io/en/latest/getting_started_facedancer.html>`_ 
+  guides to install all the required dependencies.
 - `Raspdancer <http://wiki.yobi.be/wiki/Raspdancer>` is supported on RPi
 - **GadgetFS** is partially supported.
   This support is very experimental (even more than the rest of Umap2)

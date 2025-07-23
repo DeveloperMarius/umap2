@@ -10,7 +10,7 @@ from serial import Serial, PARITY_NONE
 
 from umap2.phy.facedancer.max342x_phy import Max342xPhy
 from umap2.phy.gadgetfs.gadgetfs_phy import GadgetFsPhy
-from umap2.phy.cynthion.cynthion_phy import CynthionPhy
+# CynthionPhy import moved to load_phy method with error handling
 from umap2.utils.ulogger import set_default_handler_level
 
 
@@ -81,9 +81,13 @@ class Umap2App(object):
             phy = GadgetFsPhy(self)
             return phy
         elif phy_type == 'cynthion':
-            self.logger.debug('Physical interface is Cynthion')
-            phy = CynthionPhy(self)
-            return phy
+            try:
+                from umap2.phy.cynthion.cynthion_phy import CynthionPhy
+                self.logger.debug('Physical interface is Cynthion')
+                phy = CynthionPhy(self)
+                return phy
+            except ImportError:
+                raise Exception('Cynthion support requires additional dependencies. Please follow the guides linked in the README file.')
         raise Exception('Phy type not supported: %s' % phy_type)
 
     def load_device(self, dev_name, phy):
