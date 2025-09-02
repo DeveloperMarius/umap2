@@ -41,7 +41,7 @@ class DescriptorNode(object):
         self.parent = None
 
     def get_by_type(self, req_type):
-        # print 'get_by_type: %02x (%02x)' % (req_type, self.node_type)
+        # print('get_by_type: %02x (%02x)' % (req_type, self.node_type))
         if self.node_type == req_type:
             return self
         elif self.parent is None:
@@ -58,7 +58,7 @@ class DescriptorNode(object):
         return def_node
 
     def get_pre(self):
-        # print 'to_code(node_type: %02x)' % (self.node_type)
+        # print('to_code(node_type: %02x)' % (self.node_type))
         pre_code = ''
         available_list_types = set([n.node_type for n in self.deps if isinstance(n, ListNode)])
         known_list_types = set(t for t in self.list_names)
@@ -134,7 +134,7 @@ class ListNode(DescriptorNode):
 def parse_pfn(desc_type):
     def parser_wrapper(pfn):
         def wrapper(self, desc):
-            # print 'Parsing desc %02x: %s' % (desc_type, hexlify(desc))
+            # print('Parsing desc %02x: %s' % (desc_type, hexlify(desc)))
             self.select_node(desc_type)
             node = DescriptorNode(desc_type)
             node.text = pfn(self, desc, node)
@@ -353,7 +353,7 @@ class Parser(object):
             self.parse_config_desc(desc_buff)
 
     def emit_output(self):
-        print self.root_node.to_code()
+        print(self.root_node.to_code())
 
 
 def main():
